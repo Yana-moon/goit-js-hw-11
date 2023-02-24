@@ -1,0 +1,46 @@
+@import './common';
+@import './infiniteScroll';
+@import './load-more';
+@import './search-form';
+
+.link {
+  font-size: 36px;
+  font-weight: 700;
+  color: #3550a2;
+  padding: 20px;
+  text-align: center;
+}
+
+.link:hover,
+.link:focus {
+  color: #1a2649;
+  scale: 1.2;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  margin-top: auto;
+  padding: 100px 30px;
+  align-items: center;
+  gap: 50px;
+}
+
+.back {
+  display: block;
+  font-size: 16px;
+  line-height: 1.5;
+  font-weight: 500;
+  color: #dce1f1;
+  padding: 14px 30px;
+  text-align: start;
+  background: #3550a2;
+  position: fixed;
+  z-index: 2;
+}
+
+.back:hover,
+.back:focus {
+  color: #fff;
+  scale: 1.2;
+}

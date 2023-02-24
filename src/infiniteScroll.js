@@ -27,13 +27,11 @@ return response.data.hits;
 
 const searchForm = document.querySelector('#search-form');
 const gallery = document.querySelector('.gallery');
-const loadMoreBtn = document.querySelector('.load-more');
 const submitBtn = document.querySelector('.submit');
 const input = document.querySelector('#search-form > input');
 
 searchForm.addEventListener('submit', onSearch);
-loadMoreBtn.addEventListener('click', fetchImages);
-searchForm.addEventListener('input', onSabmitBtn, ofSabmitBtn);
+searchForm.addEventListener('input', onSabmitBtn);
 input.addEventListener('input', invalidInput);
 
 function invalidInput(e) {
@@ -54,6 +52,35 @@ function ofSabmitBtn() {
 submitBtn.disabled = true;
 }
 
+// =========================================================
+
+const loading = document.querySelector('.loading');
+
+window.addEventListener('scroll', infiniteScroll);
+
+function infiniteScroll() {
+const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+
+console.log({ scrollTop, scrollHeight, clientHeight });
+
+if (clientHeight + scrollTop >= scrollHeight) {
+    showLoading();
+} else if (scrollHeight - scrollTop === clientHeight) {
+    galleryEndInfo();
+}
+}
+
+function showLoading() {
+loading.classList.add('show');
+setTimeout(fetchImages, 500);
+}
+
+function showRemove() {
+loading.classList.remove('show');
+}
+
+// =======================================================
+
 async function onSearch(e) {
 e.preventDefault();
 
@@ -65,15 +92,12 @@ onSabmitBtn(e);
 invalidInput(e);
 resetPage();
 clearGallery();
-
 await fetchImages().finally(() => form.reset());
 ofSabmitBtn();
 }
 
 async function fetchImages() {
 try {
-    loadMoreBtnDisabled();
-
     const images = await searchImage();
     const markup = await images.reduce(
     (markup, image) => createMarkup(image) + markup,
@@ -87,18 +111,19 @@ try {
     scrollBy();
     }
 
-    loadMoreBtn.classList.remove('is-hidden');
-    loadMoreBtnEnabled();
-
     if (totalHits === 0) {
-    loadMoreBtn.classList.add('is-hidden');
     Notiflix.Notify.failure(
         'Sorry, there are no images matching your search query. Please try again.'
     );
+    showRemove();
     } else if (totalHits > 0 && page - 1 === 1) {
     totalImages(totalHits);
     galleryEndInfo();
-    } else galleryEndInfo();
+    showRemove();
+    } else {
+    galleryEndInfo();
+    showRemove();
+    }
 } catch (err) {
     return console.error(err);
 }
@@ -112,6 +137,8 @@ lightBox();
 function clearGallery() {
 gallery.innerHTML = '';
 }
+
+// ========================================================
 
 function createMarkup({
 largeImageURL,
@@ -144,6 +171,8 @@ return `
 `;
 }
 
+// ========================================================
+
 function nextPage() {
 page += 1;
 }
@@ -163,19 +192,9 @@ function totalImages(totalHits) {
 Notiflix.Notify.success(`Hooray! We found ${totalHits} images.`);
 }
 
-function loadMoreBtnDisabled() {
-loadMoreBtn.disabled = true;
-loadMoreBtn.textContent = 'Loading...';
-}
-
-function loadMoreBtnEnabled() {
-loadMoreBtn.disabled = false;
-loadMoreBtn.textContent = 'Load more';
-}
-
 function galleryEndInfo() {
 if (totalHits / per_page < page - 1) {
-    loadMoreBtn.classList.add('is-hidden');
+    showRemove();
     Notiflix.Notify.success(
     "We're sorry, but you've reached the end of search results."
     );
