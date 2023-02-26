@@ -3,13 +3,24 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Search images Pixabay</title>
+    <title>Page title</title>
     <link rel="stylesheet" href="./sass/index.scss" />
+    <script type="module" src="./index.js"></script>
   </head>
   <body>
-    <div class="menu">
-      <a href="./load-more.html" class="link">Load more button</a>
-      <a href="./infiniteScroll.html" class="link">Infinite scrolling</a>
+    <div class="header">
+    <form class="search-form" id="search-form">
+      <input
+        type="text"
+        name="searchQuery"
+        autocomplete="off"
+        placeholder="Search images..."
+      />
+      <button type="submit">Search</button>
+    </form>
+</div>
+    <div class="gallery">
     </div>
+    <button type="button" class="load-more visually-hidden">Load more</button>
   </body>
 </html>

@@ -1,3 +1,7 @@
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
+import Notiflix from 'notiflix';
+import axios from 'axios';
 
 const userId = '33912044-22b2651672bec86fc9e274e80';
 const requestUrl = 'https://pixabay.com/api/?';
@@ -13,32 +17,15 @@ const loadBtn = document.querySelector('.load-more');
 
 let numPage = 1;
 const per_page = 40;
-let totalHits = 0;
-let lightbox = '';
 
 
-formRequest.addEventListener('submit', async e => {
+formRequest.addEventListener('submit', e => {
   e.preventDefault();
-  loadBtn.classList.add('visually-hidden');
   numPage = 1;
-  galleryDesk.replaceChildren();
-  await createCardImage();
-  console.log(totalHits);
-  if (Number(totalHits) > 40) {
-    loadBtn.classList.remove('visually-hidden');
-    Notiflix.Notify.success(`'Hooray! We found ${totalHits} images.'`);
-  } else if (Number(totalHits) !== 0) {
-    Notiflix.Notify.success(`'Hooray! We found ${totalHits} images.'`);
-  } else emptyMessage();
-  galleryLightBox();
-});
+  const findText = formRequest.elements.searchQuery.value.trim();
+  console.log(findText);
 
-
-loadBtn.addEventListener('click', addMarkupImages);
-
-//////////// Запрос на бекенд///////////////
-async function getImages(findText) {
-  try {
+  async function getImage() {
     const request = await axios({
       url: `${requestUrl}`,
       params: {
@@ -51,29 +38,11 @@ async function getImages(findText) {
         page: numPage,
       },
     });
-    return request.data;
-  } catch (error) {
-    emptyMessage();
-    console.error(error);
-  }
-}
-
-
-async function createMarkupImages() {
-  const findText = formRequest.elements.searchQuery.value.trim();
-  const response = await getImages(findText);
-  totalHits = response.totalHits;
-  const arrayImages = [];
-  for (const {
-    webformatURL,
-    largeImageURL,
-    tags,
-    likes,
-    views,
-    comments,
-    downloads,
-  } of response.hits) {
-    arrayImages.push({
+    const totalHits = request.data.totalHits;
+    const pageGroup = totalHits / per_page;
+    console.log(pageGroup);
+    const responseArray = [];
+    for (const {
       webformatURL,
       largeImageURL,
       tags,
@@ -81,15 +50,30 @@ async function createMarkupImages() {
       views,
       comments,
       downloads,
-    });
+    } of request.data.hits) {
+      responseArray.push({
+        webformatURL,
+        largeImageURL,
+        tags,
+        likes,
+        views,
+        comments,
+        downloads,
+      });
+    }
+    console.log(responseArray);
+    totalMessage(totalHits);
+    return responseArray;
+    // return request.data;
   }
-  return arrayImages;
-}
-
-
-async function createCardImage() {
-  const arrayImages = await createMarkupImages();
-  const markup = arrayImages
+  getImage().then(() => {
+    createCardImage(responseArray);
+    galleryDesk.innerHTML = markup;
+    galleryLightBox();
+  });
+});
+function createCardImage(responseArray) {
+  return (markup = responseArray
     .map(
       arrItem => `       
       <a class="image-link" href="${arrItem.largeImageURL}">
@@ -108,33 +92,25 @@ async function createCardImage() {
         </a>
         `
     )
-    .join('');
-  galleryDesk.insertAdjacentHTML('beforeend', markup);
+    .join(''));
 }
 
 
 function galleryLightBox() {
-  lightbox = new SimpleLightbox('.gallery a', {
+  return new SimpleLightbox('.gallery a', {
     captionsData: 'alt',
     captionDelay: 250,
   });
 }
 
-
-async function addMarkupImages() {
-  numPage += 1;
-  if (numPage > totalHits / per_page) {
-    endMessage();
-    loadBtn.classList.add('visually-hidden');
-  }
-  await createCardImage();
-  lightbox.refresh();
-}
-
 function emptyMessage() {
-  Notiflix.Notify.failure(`${emptyRequest}`);
+  Notiflix.Notify.info(`${emptyRequest}`);
 }
 
 function endMessage() {
   Notiflix.Notify.info(`${endOfRequest}`);
+}
+
+function totalMessage(totalHits) {
+  Notiflix.Notify.info(`'Hooray! We found ${totalHits} images.'`);
 }
