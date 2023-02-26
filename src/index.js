@@ -6,7 +6,7 @@ import axios from 'axios';
 
 
 const userId = '33912044-22b2651672bec86fc9e274e80';
-const requestUrl = 'https://pixabay.com/api';
+const requestUrl = 'https://pixabay.com/api/?';
 
 const emptyRequest =
   'Sorry, there are no images matching your search query. Please try again.';
