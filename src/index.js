@@ -1,4 +1,10 @@
 
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
+import Notiflix from 'notiflix';
+import axios from 'axios';
+
+
 const userId = '33912044-22b2651672bec86fc9e274e80';
 const requestUrl = 'https://pixabay.com/api';
 
